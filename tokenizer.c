@@ -10,13 +10,19 @@
 char* comms[10];
 char* token;
 
-void tokenize(char *str){
-    int i = 0;
-    token = strtok(str, " ");
-    comms[i] = token;
 
+void tokenize(char *str){
+    token = strtok(str, " ");
     while(token != NULL){
+        printf("%s\n", token);
         token = strtok(NULL, " ");
     }
 }
+
+int main(void){
+    char testing[100];
+    strncpy(testing, "This is a test", 100);
+    tokenize(testing);
+}
+
 
