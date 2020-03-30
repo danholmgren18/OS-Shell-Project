@@ -3,9 +3,7 @@
  * @author: Zachary Semanco, Daniel Holmgren
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "tokenizer.h"
 
 #define COMMAND_SIZE 60
 
