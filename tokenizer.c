@@ -7,26 +7,22 @@
 #include <stdlib.h>
 #include <string.h>
 
-char* comms[10];
 char* token;
 char* errors = "<>|";
 
-int tokenize(char *str){
+int tokenize(char *str, char *search){
     char *commands[15];
     int place = 0;
-    token = strtok(str, " ");
+    token = strtok(str, search);
     if(strchr(errors, *token)){
-        printf("Found the error\n");
+        printf("Error: Cannot have special character first.\n");
         return 0;
     }
-    //commands[place] = token;
-    printf("stored the token\n");
     while(token != NULL){
-        printf("Entered the while loop\n");
+        printf("%s\n", token);
         commands[place] = token;
         place++;
-        printf("%s", token);
-        token = strtok(NULL, " ");
+        token = strtok(NULL, search);
     }
     
     return 1;
@@ -38,7 +34,7 @@ int main(void){
     fgets(line, sizeof line, stdin);
     line[strcspn(line, "\n")] = 0;
 
-    int worked = tokenize(line);
+    int worked = tokenize(line, " ");
     printf("%d\n", worked);
 }
 
