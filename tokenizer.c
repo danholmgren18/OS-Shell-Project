@@ -9,19 +9,27 @@
 
 char* comms[10];
 char* token;
+char* errors = "<>|";
 
-
-void tokenize(char *str){
+int tokenize(char *str){
     char *commands[15];
-    int place = 1;
+    int place = 0;
     token = strtok(str, " ");
-    commands[0] = token;
+    if(strchr(errors, *token)){
+        printf("Found the error\n");
+        return 0;
+    }
+    //commands[place] = token;
+    printf("stored the token\n");
     while(token != NULL){
-        printf("%s", token);
-        token = strtok(NULL, " ");
+        printf("Entered the while loop\n");
         commands[place] = token;
         place++;
+        printf("%s", token);
+        token = strtok(NULL, " ");
     }
+    
+    return 1;
 }
 
 int main(void){
@@ -30,7 +38,8 @@ int main(void){
     fgets(line, sizeof line, stdin);
     line[strcspn(line, "\n")] = 0;
 
-    tokenize(line);
+    int worked = tokenize(line);
+    printf("%d\n", worked);
 }
 
 
