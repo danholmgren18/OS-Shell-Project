@@ -20,7 +20,7 @@ int walkThroughInput(char *input_str)
 
     while (ptr != NULL)
     {
-        printf("'%s'\n", ptr);
+        printf("'%s' \n", ptr);
         ptr = strtok(NULL, delim);
     }
 
@@ -35,7 +35,6 @@ int main()
     char input_str[INPUT_SIZE];
 
     fgets(input_str, INPUT_SIZE, stdin);
-
 
     walkThroughInput(input_str);
 }
