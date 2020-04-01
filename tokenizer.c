@@ -9,7 +9,7 @@
 
 #define INPUT_SIZE 256
 
-int walkThroughInput(char *input_str)
+int tokenize(char *input_str)
 {
     char str[INPUT_SIZE];
     strcpy(str, input_str);
@@ -18,23 +18,59 @@ int walkThroughInput(char *input_str)
 
     char *ptr = strtok(str, delim);
 
+    int state = 0;
+
     while (ptr != NULL)
     {
         printf("'%s' \n", ptr);
         ptr = strtok(NULL, delim);
+    
+        switch(state)
+        {
+            /* Starting State */
+            case 0:
+                //if (ptr = error) { default }
+                //if (ptr = " ") { state = 0; }
+                //if (ptr = valid) { state = 1; }
+                break;
+
+            /* Read First Command State */
+            case 1:
+                //if (ptr = valid) { state = 1; }
+                //if (ptr = blank) { state = 2; }
+                break;
+
+            /* Junction State */
+            case 2: 
+                //if (ptr = open_quote) { state = 3; }
+                //if (ptr = blank) { state = 2; }
+                //if (ptr = valid) { state = 4; }
+                break;
+
+            /* Quotations State */
+            case 3:
+                //if (ptr = close_quote) { state = 2; }
+                //if (ptr = valid) { state = 3; }
+                break;
+                
+            /* Command State */
+            case 4:
+                //if (ptr = valid) { state = 4; }
+
+                break;
+
+            /* Redirections */
+            case 5:
+                //if ()
+
+            /* Error State */
+            default:
+                //printf("ERROR: Command Not Found");
+                //exit(-1);
+        }
+    
+    
     }
 
-    return 0;
-}
-
-int main()
-{
-    printf("\n---Start---\n");
-    printf("input the string to be tokeinzed\n");
-
-    char input_str[INPUT_SIZE];
-
-    fgets(input_str, INPUT_SIZE, stdin);
-
-    walkThroughInput(input_str);
+    return 5;
 }

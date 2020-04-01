@@ -1,5 +1,5 @@
 /*
-* Header File for the Tokenizer File
+* Header File for the Tokenizer
 * @author: Zachary Seamnco
 */
 

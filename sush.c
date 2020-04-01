@@ -22,4 +22,8 @@
 
     printf("Your command: %s", command);
 
+    int result = tokenize(command);
+
+    printf("%d\n", result);
+
  }
