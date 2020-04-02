@@ -150,22 +150,12 @@ int tokenize(char *input_str)
                     }
                 }
                 
-                
                 break;
 
-            /* Redirections */
-            case 5:
-                printf("State 5\n");
-                printf("%c - ", str[i]);
-
-                //if ()
-                break;
-
-            /* Error State */
+            
             default:
-                //printf("ERROR: Command Not Found");
-                //exit(-1);
-                printf("default\n");
+                printf("Invalid State in Tokenizer\n");
+                exit(-2);
         }
     }
 
