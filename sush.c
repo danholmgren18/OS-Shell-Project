@@ -9,21 +9,19 @@
 
  int main (int argc, char **argv[])
  {
-    const char *prompt = "Welcome to the Shippensburg University Shell (SUSH)! Please enter a command\n";
+   const char *prompt = "Welcome to the Shippensburg University Shell (SUSH)! Please enter a command\n";
  
-    setenv("PS1", prompt, 0);
+   setenv("PS1", prompt, 0);
 
-    printf("%s", getenv("PS1"));
+   printf("%s", getenv("PS1"));
 
 
-    char command[COMMAND_SIZE];
+   char command[COMMAND_SIZE];
 
-    fgets(command, COMMAND_SIZE, stdin);
+   fgets(command, COMMAND_SIZE, stdin);
 
-    printf("Your command: %s", command);
-
-    int result = tokenize(command);
-
-    printf("%d\n", result);
+   printf("\n\n");
+   
+   int result = tokenize(command);
 
  }
