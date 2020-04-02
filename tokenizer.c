@@ -18,6 +18,7 @@ int tokenize(char *input_str)
 
     char command_name[64] = {0};
     char argument[64] = {0};
+    char in_quotes[64] = {0};
     char file_name[64] = {0};
 
     for(int i = 0; i < strlen(str); i++)
@@ -96,8 +97,9 @@ int tokenize(char *input_str)
                     break;
                 } else 
                 {
-                    state = 4;
-                    printf("to State 4\n");
+                    state = 2;
+                    strncat(argument, &str[i], 1);
+                    printf("to State 2\n");
                 }
                 
                 break;
@@ -118,7 +120,7 @@ int tokenize(char *input_str)
                 } else 
                 { 
                     state = 3;
-                    strncat(argument, &str[i], 1);
+                    strncat(in_quotes, &str[i], 1);
                     printf("to State 3\n");
                 }
 
@@ -161,6 +163,7 @@ int tokenize(char *input_str)
 
     printf("Command Name: %.*s\n", (int)sizeof(command_name), command_name);
     printf("Argument:     %.*s\n", (int)sizeof(argument), argument);
+    printf("In Quotes:    %.*s\n", (int)sizeof(in_quotes), in_quotes);
     printf("File Name:    %.*s\n", (int)sizeof(file_name), file_name);
 
     return 5;
