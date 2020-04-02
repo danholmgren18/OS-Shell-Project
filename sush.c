@@ -21,7 +21,7 @@
    fgets(command, COMMAND_SIZE, stdin);
 
    printf("\n\n");
-   
+
    int result = tokenize(command);
 
  }

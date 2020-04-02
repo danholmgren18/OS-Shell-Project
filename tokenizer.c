@@ -13,20 +13,15 @@ int tokenize(char *input_str)
 {
     char str[INPUT_SIZE];
     strcpy(str, input_str);
-    
-    // int input_size = strlen(str);
-    // char delim[] = " ";
-    // char *ptr = strtok(str, delim);
 
     int state = 0;
 
-    char command_name[64];
-    char argument[64];
+    char command_name[64] = {0};
+    char argument[64] = {0};
+    char file_name[64] = {0};
 
     for(int i = 0; i < strlen(str); i++)
     {
-        // ptr = strtok(NULL, delim);
-    
         switch(state)
         {
             /* Starting State */
@@ -43,6 +38,10 @@ int tokenize(char *input_str)
                     state = 0;
                     printf("to State 0\n");
 
+                } else if(str[i] == '\0' || str[i] == '\n')
+                {
+                    printf("\n\tEND OF PARSING\n");
+                    break;
                 } else 
                 { 
                     state = 1; 
@@ -61,6 +60,10 @@ int tokenize(char *input_str)
                 {
                     state = 2; 
                     printf("to State 2\n");
+                } else if(str[i] == '\0' || str[i] == '\n')
+                {
+                    printf("\n\tEND OF PARSING\n");
+                    break;
                 } else
                 {
                     state = 1;
@@ -70,22 +73,27 @@ int tokenize(char *input_str)
                 
                 break;
 
-            /* Check State: Quotations(goto 3) Space(goto 2) or Command Argument(goto 4) */
+            /* Check State: Quotations(goto 3), Space(goto 2), Redirect(goto 4)  */
             case 2: 
                 printf("State 2\n");
                 printf("%c - ", str[i]);
                 
-                if (str[i] = '\'' || str[i] == '\"') 
+                if (str[i] == '\'' || str[i] == '\"') //starting quote
                 { 
                     state = 3; 
                     printf("to State 3\n");
-                } else if(str[i] == ' ') 
+                } else if (str[i] == ' ') 
                 { 
                     state = 2;
                     printf("to State 2\n");
+                } else if (str[i] == '<' || str[i] == '>' || str[i] == '|')
+                {
+                    state = 4;
+                    printf("to State 4\n");
                 } else if(str[i] == '\0' || str[i] == '\n')
                 {
                     printf("\n\tEND OF PARSING\n");
+                    break;
                 } else 
                 {
                     state = 4;
@@ -99,24 +107,50 @@ int tokenize(char *input_str)
                 printf("State 3\n");
                 printf("%c - ", str[i]);
 
-                if (str[i] == '\'' || str[i] == '\"') 
+                if (str[i] == '\'' || str[i] == '\"') //ending quote
                 { 
                     state = 2;
                     printf("to State 2\n");
+                } else if(str[i] == '\0' || str[i] == '\n')
+                {
+                    printf("\n\tEND OF PARSING\n");
+                    break;
                 } else 
                 { 
                     state = 3;
                     strncat(argument, &str[i], 1);
                     printf("to State 3\n");
                 }
+
                 break;
                 
-            /* Command State */
+            /* Redirect State */
             case 4:
                 printf("State 4\n");
                 printf("%c - ", str[i]);
-
-                //if (ptr = valid) { state = 4; }
+                
+                if (str[i] == ' ') //leading space
+                { 
+                    state = 4;
+                    printf("to State 4\n"); 
+                } else if(str[i] == '\0' || str[i] == '\n')
+                {
+                    printf("\n\tEND OF PARSING\n");
+                    break;
+                } else 
+                {
+                    state = 4;
+                    strncat(file_name, &str[i], 1);
+                    printf("to State 4\n");
+                    
+                    if(str[i+1] == ' ')
+                    {
+                        state = 2;
+                        printf("space after text, assume end of text, redirect state 2\n");
+                    }
+                }
+                
+                
                 break;
 
             /* Redirections */
@@ -135,6 +169,9 @@ int tokenize(char *input_str)
         }
     }
 
-    printf("\n\n%s\n%s\n", command_name, argument);
+    printf("Command Name: %.*s\n", (int)sizeof(command_name), command_name);
+    printf("Argument:     %.*s\n", (int)sizeof(argument), argument);
+    printf("File Name:    %.*s\n", (int)sizeof(file_name), file_name);
+
     return 5;
 }
