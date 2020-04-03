@@ -9,17 +9,27 @@
 
 #define INPUT_SIZE 256
 
-int tokenize(char *input_str)
+typedef struct _Token 
+{
+    char command_name[64];
+    char argument[64];
+    char in_quotes[64];
+    char file_name[64];
+    int redirect; 
+} Token;
+
+Token tokenize(char *input_str)
 {
     char str[INPUT_SIZE];
     strcpy(str, input_str);
-
-    int state = 0;
-
+    
     char command_name[64] = {0};
     char argument[64] = {0};
     char in_quotes[64] = {0};
     char file_name[64] = {0};
+    int redirect = 0;
+
+    int state = 0;
 
     for(int i = 0; i < strlen(str); i++)
     {
@@ -91,6 +101,7 @@ int tokenize(char *input_str)
                 {
                     state = 4;
                     printf("to State 4\n");
+                    redirect = 1;
                 } else if(str[i] == '\0' || str[i] == '\n')
                 {
                     printf("\n\tEND OF PARSING\n");
@@ -164,7 +175,15 @@ int tokenize(char *input_str)
     printf("Command Name: %.*s\n", (int)sizeof(command_name), command_name);
     printf("Argument:     %.*s\n", (int)sizeof(argument), argument);
     printf("In Quotes:    %.*s\n", (int)sizeof(in_quotes), in_quotes);
+    printf("Redirect:     "); printf(redirect ? "true\n" : "false\n"); 
     printf("File Name:    %.*s\n", (int)sizeof(file_name), file_name);
 
-    return 5;
+    Token tokens;
+    strcpy(tokens.command_name, command_name);
+    strcpy(tokens.argument, argument);
+    strcpy(tokens.in_quotes, in_quotes);
+    tokens.redirect = redirect;
+    strcpy(tokens.file_name, file_name);
+
+    return tokens;
 }
