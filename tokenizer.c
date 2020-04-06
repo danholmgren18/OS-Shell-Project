@@ -18,8 +18,58 @@ typedef struct _Token
     int redirect; 
 } Token;
 
+// a b c d e > output
+// a b < input e f g
+// tokens: { a  b, c, d e, >, output}
+
+typedef struct _Token2 
+{
+    int num_tokens;
+    char *tokens[20];
+} tokenizer_t;
+
+// cmd = { .cmd = "a", .ag s= "b", "c", "d", "e", .append = 0, output = "output"
+//  }// struct to "parse" command line
+// typedef struct 
+// {
+//     char *cmd;
+//     char *in_name;
+//     char *out_name;
+//     int append;
+//     char *args[];
+// } command_t;
+
 Token tokenize(char *input_str)
 {
+    printf("In the tokenize command\n");
+    
+    tokenizer_t t_token;
+    t_token.num_tokens = 0;
+
+    char* temp = strtok(input_str, " ");
+    
+    t_token.tokens[t_token.num_tokens] = strdup(temp);
+    t_token.num_tokens++;
+    
+    
+    while (temp != NULL)
+    {
+        printf("here\n");
+        
+        temp = strtok(NULL, " ");
+        
+        t_token.tokens[t_token.num_tokens] = strdup(temp);
+        
+        t_token.num_tokens++;
+    }
+
+    printf("Num Tokens = %d\n", t_token.num_tokens);
+    for(int i = 0; i < t_token.num_tokens; i++)
+    {
+        printf("Token %d = %s\n", i, t_token.tokens[i]);
+    }
+
+
     char str[INPUT_SIZE];
     strcpy(str, input_str);
     

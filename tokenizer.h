@@ -16,5 +16,11 @@ typedef struct _Token
     int redirect; 
 } Token;
 
+typedef struct _Token2 
+{
+    int num_tokens;
+    char *tokens[20];
+} tokenizer_t;
+
 Token tokenize(char *str); //Function holding tokenizing functionality 
 
