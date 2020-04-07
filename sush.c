@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "tokenizer.h"      //Header file allowing us to use the tokenizer file and functions
+#include "command.h"
 
 // The max amount of characters to be read
 #define COMMAND_SIZE 60
@@ -34,9 +35,16 @@ int main (int argc, char **argv[])
     
     // instance of tokenizer_t struct
     tokenizer_t tkn;
+    memset(&tkn, 0, sizeof(tkn));
 
     // tokenize the string
     tkn = tokenize(command); 
+    
+
+    for(int i = 0; i < tkn.num_tokens; i++)
+    {
+        printf("tkn.tokens[%d] = %s\n", i, tkn.tokens[i]);
+    }
 
     // instance of command_t struct
     // command_t cmd;

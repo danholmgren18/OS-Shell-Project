@@ -12,16 +12,6 @@ typedef struct _Token
     char *tokens[20];
 } tokenizer_t;
 
-typedef struct _Command
-{
-    char *cmd;
-    char *in_name;
-    char *out_name;
-    int append;
-    int argc;
-    char *args[];
-} command_t;
-
 tokenizer_t tokenize(char *str); //Function holding tokenizing functionality 
 
 #endif
