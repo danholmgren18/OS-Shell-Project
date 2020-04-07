@@ -5,19 +5,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include "tokenizer.h"      //Header file allowing us to use the tokenizer file and functions
-#include "command.h"
+#include "command.h"        //Header file for the command struct
 
 // The max amount of characters to be read
 #define COMMAND_SIZE 60
 
 // The list of internal commands and its size
-int command_list_size = 7;
-char *command_list[] = {"cd", "setenv", "unsetenv", "pwd", "exit", "accnt", "\0"};
+int command_list_size = 6;
+char *command_list[] = {"cd", "setenv", "unsetenv", "pwd", "exit", "accnt"};
 
 // Funciton definitions for functions later in the file
-void checkInternalCommand(char *cmd);
-void execInternal(int command_num);
+void checkInternalCommand(command_t *cmd);
+void execInternal(int command_num, command_t *cmd);
 
 
 int main (int argc, char **argv[])
@@ -39,12 +40,6 @@ int main (int argc, char **argv[])
 
     // tokenize the string
     tkn = tokenize(command); 
-    
-
-    for(int i = 0; i < tkn.num_tokens; i++)
-    {
-        printf("tkn.tokens[%d] = %s\n", i, tkn.tokens[i]);
-    }
 
     // instance of command_t struct
     command_t cmd;
@@ -52,60 +47,73 @@ int main (int argc, char **argv[])
     
     // The 'command' portion of the entered string is assumed to be the first part the user enters
     cmd.cmd = strdup(tkn.tokens[0]);
-
-    // Checks to see if the command the user entered is an internal command
-    checkInternalCommand(cmd.cmd);
-
+    
     // Defines the number of arguments for our command
-    cmd.argc = tkn.num_tokens-1;
+    cmd.argc = tkn.num_tokens - 1;
     
     // Place the arguments into their array
-    for(int i = 0; i < tkn.num_tokens; i++)
+    int i = 1;
+    while(tkn.tokens[i] != NULL)
     {
-        printf("tkn.tokens[%d] = %s\n", i, tkn.tokens[i]);
         cmd.args[i-1] = strdup(tkn.tokens[i]);
-        printf("cmd.args[%d] = %s\n", i, cmd.args[i]);
+        i++;
     }
+
+    // Checks to see if the command the user entered is an internal command
+    command_t *cmd_ptr = &cmd;
+    checkInternalCommand(cmd_ptr);
+    
 }
 
 // Checks to see if the command is internal
 // If so, execute it
-void checkInternalCommand(char *cmd)
+void checkInternalCommand(command_t *cmd)
 {
-    // printf("cmd = %s\n", cmd);
-
-    for(int i = 0; i < command_list_size - 1; i++)
+    for(int i = 0; i < command_list_size; i++)
     {
-        // printf("Trying to compare %s and %s\n", command_list[i], cmd);
-        if (strcmp(command_list[i], cmd) == 0)
+        if (strcmp(command_list[i], cmd->cmd) == 0)
         {
-            execInternal(i);
+            execInternal(i, cmd);
+            break;
         }
     }
 }
 
 // Finds the proper internal command to execute
-void execInternal(int command_num)
-{  
-    printf("command_num = %d\n", command_num);
+void execInternal(int command_num, command_t *cmd)
+{ 
     switch(command_num) 
     {
         case 0:
+            //cd
             printf("User entered %s\n", command_list[command_num]);
+            if(chdir(cmd->args[0]) == 0){
+                printf("Changed directory to: %s\n", getenv("PWD"));
+            }else printf("Error: Failed to change directory\n");
             break;
         case 1:
-            printf("User entered %s\n", command_list[command_num]);
+            //setenv
+            if((setenv(cmd->args[0], cmd->args[1], 1)) == 0){
+                printf("Set env var %s to %s\n", cmd->args[0], cmd->args[1]);
+            } else printf("Error: Failed to change env var\n");
             break;
         case 2:
-            printf("User entered %s\n", command_list[command_num]);
+            //unsetenv
+            if((unsetenv(cmd->args[0])) == 0){
+                printf("Unset env var %s\n", cmd->args[0]);
+            } else printf("Failed to unset env var\n");
             break;
         case 3:
-            printf("User entered %s\n", command_list[command_num]);
+            //pwd
+            printf("Current working directory: %s\n", getenv("PWD"));
             break;
         case 4:
-            printf("User entered %s\n", command_list[command_num]);
+            //exit
+            printf("Thanks for using the SUSH, goodbye\n");
+            exit(0);
             break;
         case 5:
+            //accnt
             printf("User entered %s\n", command_list[command_num]);
             break;
         default: 
