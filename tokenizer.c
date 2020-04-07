@@ -69,11 +69,15 @@ tokenizer_t tokenize(char *input_str)
                 break;
 
             case TOKEN:
-                if (iswhitespace(ch)) {
-                    next_state = INITIAL;
+                if (iswhitespace(ch) || isnewline(ch)) {
+                    if(iswhitespace(ch)) { 
+                        next_state = INITIAL;
+                    } else {
+                        next_state = DONE;
+                    }
                     tknzr.tokens[tknzr.num_tokens] = strndup(input_str+token_start, (curr-token_start));
                     tknzr.num_tokens++;
-                } else if(isnewline(ch)) next_state = END_TOKEN;
+                }
                 else {
                     next_state = TOKEN;
                 }
