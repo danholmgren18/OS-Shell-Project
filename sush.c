@@ -17,7 +17,7 @@ int command_list_size = 6;
 char *command_list[] = {"cd", "setenv", "unsetenv", "pwd", "exit", "accnt"};
 
 // Funciton definitions for functions later in the file
-void checkInternalCommand(command_t *cmd);
+int checkInternalCommand(command_t *cmd);
 void execInternal(int command_num, command_t *cmd);
 
 
@@ -61,22 +61,28 @@ int main (int argc, char **argv[])
 
     // Checks to see if the command the user entered is an internal command
     command_t *cmd_ptr = &cmd;
-    checkInternalCommand(cmd_ptr);
+    if(checkInternalCommand(cmd_ptr)){
+        //should run the code from the if()
+    }
+    else {
+        parseAndRun(cmd.cmd, cmd.args, cmd.argc);
+    }
     
 }
 
 // Checks to see if the command is internal
 // If so, execute it
-void checkInternalCommand(command_t *cmd)
+int checkInternalCommand(command_t *cmd)
 {
     for(int i = 0; i < command_list_size; i++)
     {
         if (strcmp(command_list[i], cmd->cmd) == 0)
         {
             execInternal(i, cmd);
-            break;
+            return 1;
         }
     }
+    return 0;
 }
 
 // Finds the proper internal command to execute
