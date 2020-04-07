@@ -7,225 +7,115 @@
 #include <stdio.h>
 #include <string.h>
 
-#define INPUT_SIZE 256
+#include "tokenizer.h"
 
-typedef struct _Token 
-{
-    char command_name[64];
-    char argument[64];
-    char in_quotes[64];
-    char file_name[64];
-    int redirect; 
-} Token;
 
-// a b c d e > output
-// a b < input e f g
-// tokens: { a  b, c, d e, >, output}
+enum state {
+    INITIAL,
+    TOKEN,
+    QUOTE,
+    COMMA_AFTER_QUOTE,
+    END_TOKEN,
+    ERROR, 
+    DONE
+};
 
-typedef struct _Token2 
-{
-    int num_tokens;
-    char *tokens[20];
-} tokenizer_t;
+int iswhitespace(char ch) { 
+    if (ch == ' ') return 1;
+    if (ch == '\t') return 1;
+    return 0;
+}
 
-// cmd = { .cmd = "a", .ag s= "b", "c", "d", "e", .append = 0, output = "output"
-//  }// struct to "parse" command line
-// typedef struct 
-// {
-//     char *cmd;
-//     char *in_name;
-//     char *out_name;
-//     int append;
-//     char *args[];
-// } command_t;
+int isnewline(char ch) {
+    if (ch == '\n') return 1;
+    else return 0;
+}
 
-Token tokenize(char *input_str)
+tokenizer_t tokenize(char *input_str)
 {
     tokenizer_t tknzr;
-    int count = 0;
-
-    char* tok = strtok(input_str, " ");    
-   
-    while(tok != NULL)
-    {        
-        tknzr.tokens[count] = strdup(tok);
-        count++;
-        tok = strtok(NULL, " ");
-    }
-
-    tknzr.num_tokens = count;
-
-    for(int i = 0; i < tknzr.num_tokens; i++)
-    {
-        printf("Token %d = %s\n", i, tknzr.tokens[i]);
-    }
-
-/***********************************************************/
-
-    char str[INPUT_SIZE];
-    strcpy(str, input_str);
     
-    char command_name[64] = {0};
-    char argument[64] = {0};
-    char in_quotes[64] = {0};
-    char file_name[64] = {0};
-    int redirect = 0;
+    memset(&tknzr, 0, sizeof(tknzr));
 
-    int state = 0;
+    int curr = 0;
+    enum state state = INITIAL;  
+    enum state next_state = INITIAL;
+    int token_start = 0;
 
-    for(int i = 0; i < strlen(str); i++)
-    {
-        switch(state)
-        {
-            /* Starting State */
-            case 0:
-                printf("State 0\n");
-                printf("%c - ", str[i]);
-               
-                if (str[i] == '|' || str[i] == '<' || str[i] == '>') 
-                {
-                     printf("ERROR: Invalid Command Entered\n");
-                     exit(-1); 
-                } else if (str[i] == ' ') 
-                { 
-                    state = 0;
-                    printf("to State 0\n");
+    while (state != DONE) {
 
-                } else if(str[i] == '\0' || str[i] == '\n')
-                {
-                    printf("\n\tEND OF PARSING\n");
-                    break;
-                } else 
-                { 
-                    state = 1; 
-                    strncat(command_name, &str[i], 1);
-                    printf("to State 1\n");
+        char ch = input_str[curr];
+
+        // if (ch == '\n') state=END_TOKEN;
+
+        switch(state) {
+            case INITIAL:
+                if (iswhitespace(ch)) next_state = INITIAL;
+                // empty field
+                else if (ch == ' ') {
+                    tknzr.tokens[tknzr.num_tokens] = "";
+                    tknzr.num_tokens++;
+                    next_state = INITIAL;
                 }
-                
+                else if (ch == '"') {
+                    token_start = curr;
+                    next_state = QUOTE;
+                }
+                else if (isnewline(ch)) next_state = DONE;
+                else {
+                    token_start = curr;
+                    next_state = TOKEN;
+                }
                 break;
 
-            /* Read First Command State */
-            case 1:
-                printf("State 1\n");
-                printf("%c - ", str[i]);
-
-                if (str[i] == ' ') 
-                {
-                    state = 2; 
-                    printf("to State 2\n");
-                } else if(str[i] == '\0' || str[i] == '\n')
-                {
-                    printf("\n\tEND OF PARSING\n");
-                    break;
-                } else
-                {
-                    state = 1;
-                    strncat(command_name, &str[i], 1);
-                    printf("to State 1\n");
+            case TOKEN:
+                if (iswhitespace(ch)) {
+                    next_state = INITIAL;
+                    tknzr.tokens[tknzr.num_tokens] = strndup(input_str+token_start, (curr-token_start));
+                    tknzr.num_tokens++;
+                } else if(isnewline(ch)) next_state = END_TOKEN;
+                else {
+                    next_state = TOKEN;
                 }
+                break;
+            case QUOTE:
                 
+                if (ch == '"') {
+                    tknzr.tokens[tknzr.num_tokens] = strndup(input_str+token_start+1, (curr-token_start-1));
+                    tknzr.num_tokens++;
+                    next_state = COMMA_AFTER_QUOTE;
+                } else if (isnewline(ch)) next_state = ERROR;
+                else {
+                    next_state = QUOTE;
+                }
                 break;
 
-            /* Check State: Quotations(goto 3), Space(goto 2), Redirect(goto 4)  */
-            case 2: 
-                printf("State 2\n");
-                printf("%c - ", str[i]);
-                
-                if (str[i] == '\'' || str[i] == '\"') //starting quote
-                { 
-                    state = 3; 
-                    printf("to State 3\n");
-                } else if (str[i] == ' ') 
-                { 
-                    state = 2;
-                    printf("to State 2\n");
-                } else if (str[i] == '<' || str[i] == '>' || str[i] == '|')
-                {
-                    state = 4;
-                    printf("to State 4\n");
-                    redirect = 1;
-                } else if(str[i] == '\0' || str[i] == '\n')
-                {
-                    printf("\n\tEND OF PARSING\n");
-                    break;
-                } else 
-                {
-                    state = 2;
-                    strncat(argument, &str[i], 1);
-                    printf("to State 2\n");
-                }
-                
+            case COMMA_AFTER_QUOTE:
+                if (ch == ' ') next_state = INITIAL;
+                else if (ch == '\n') next_state = DONE;
+                else next_state = ERROR;
                 break;
-
-            /* In Quotes State */
-            case 3:
-                printf("State 3\n");
-                printf("%c - ", str[i]);
-
-                if (str[i] == '\'' || str[i] == '\"') //ending quote
-                { 
-                    state = 2;
-                    printf("to State 2\n");
-                } else if(str[i] == '\0' || str[i] == '\n')
-                {
-                    printf("\n\tEND OF PARSING\n");
-                    break;
-                } else 
-                { 
-                    state = 3;
-                    strncat(in_quotes, &str[i], 1);
-                    printf("to State 3\n");
-                }
-
-                break;
-                
-            /* Redirect State */
-            case 4:
-                printf("State 4\n");
-                printf("%c - ", str[i]);
-                
-                if (str[i] == ' ') //leading space
-                { 
-                    state = 4;
-                    printf("to State 4\n"); 
-                } else if(str[i] == '\0' || str[i] == '\n')
-                {
-                    printf("\n\tEND OF PARSING\n");
-                    break;
-                } else 
-                {
-                    state = 4;
-                    strncat(file_name, &str[i], 1);
-                    printf("to State 4\n");
-                    
-                    if(str[i+1] == ' ')
-                    {
-                        state = 2;
-                        printf("space after text, assume end of text, redirect state 2\n");
-                    }
-                }
-                
-                break;
-
             
-            default:
-                printf("Invalid State in Tokenizer\n");
-                exit(-2);
-        }
-    }
+            case END_TOKEN:
+                tknzr.tokens[tknzr.num_tokens] = strndup(input_str+token_start, (curr-token_start));
+                tknzr.num_tokens++;
+                next_state = DONE;
+                break;
+ 
+            case ERROR:
+                next_state = DONE;
+                printf("Error in Tokenizer\n");
+                break;
+        } // end switch
 
-    printf("Command Name: %.*s\n", (int)sizeof(command_name), command_name);
-    printf("Argument:     %.*s\n", (int)sizeof(argument), argument);
-    printf("In Quotes:    %.*s\n", (int)sizeof(in_quotes), in_quotes);
-    printf("Redirect:     "); printf(redirect ? "true\n" : "false\n"); 
-    printf("File Name:    %.*s\n", (int)sizeof(file_name), file_name);
 
-    Token tokens;
-    strcpy(tokens.command_name, command_name);
-    strcpy(tokens.argument, argument);
-    strcpy(tokens.in_quotes, in_quotes);
-    tokens.redirect = redirect;
-    strcpy(tokens.file_name, file_name);
+        printf("state %d, %c -> %d\n", state, ch, next_state);
+        curr++;
+        state = next_state;
+        
+    } // end of while
 
-    return tokens;
+    printf("-------------------\n");
+
+    return tknzr;
 }
