@@ -26,9 +26,10 @@ int main (int argc, char **argv[])
     while(1){
         // User prompt when starting the shell, stored in PS1
         const char *prompt = "> Welcome to the Shippensburg University Shell (SUSH)! Please enter a command\n";
-        printf(">");
+
         setenv("PS1", prompt, 0);
         printf("%s", getenv("PS1"));
+        printf("> ");
 
 
         char command[COMMAND_SIZE];
@@ -67,8 +68,8 @@ int main (int argc, char **argv[])
             //should run the code from the if()
         }
         else {
-            parseAndRun(cmd.cmd, cmd.args, cmd.argc);
-        }
+            parseAndRun(cmd_ptr);
+        }  
     }    
 }
 

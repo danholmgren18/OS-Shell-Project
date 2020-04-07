@@ -16,6 +16,6 @@ typedef struct _Command
     char *args[];
 } command_t;
 
-void parseAndRun(char* cmd, char *args[], int argc);
+void parseAndRun(command_t *cmd_ptr);
 void run_command(const char* cmd, const char* args[]);
 #endif

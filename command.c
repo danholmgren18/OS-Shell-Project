@@ -11,20 +11,20 @@
 #include "command.h"
 
 
-void parseAndRun(char* cmd, char *args[], int argc)
+void parseAndRun(command_t *cmd_ptr)
 {
     char* precmd = strdup("/bin/");
 
     int len1 = strlen(precmd);
-    int len2 = strlen(cmd);
+    int len2 = strlen(cmd_ptr->cmd);
 
-    const char* command = strndup(strcat(precmd, cmd), len1+len2);
+    const char* command = strndup(strcat(precmd, cmd_ptr->cmd), len1+len2);
 
-    const char* arguments[20] = { strdup(cmd) };
+    const char* arguments[20] = { strdup(cmd_ptr->cmd) };
 
-    for(int i = 0; i < argc; i++)
+    for(int i = 0; i < cmd_ptr->argc; i++)
     {
-        arguments[i+1] = strdup(args[i]);
+        arguments[i+1] = strdup(cmd_ptr->args[i]);
         i++;
     }
 
@@ -46,4 +46,5 @@ void run_command(const char* command, const char* arguments[])
         int status;
         waitpid(pid, &status, 0);
     }
+    printf("---done running command---\n");
 }
