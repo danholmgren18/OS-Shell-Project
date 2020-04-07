@@ -46,5 +46,4 @@ void run_command(const char* command, const char* arguments[])
         int status;
         waitpid(pid, &status, 0);
     }
-    printf("---done running command---\n");
 }

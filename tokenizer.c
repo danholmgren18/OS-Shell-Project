@@ -112,14 +112,10 @@ tokenizer_t tokenize(char *input_str)
                 break;
         } // end switch
 
-
-        printf("state %d, %c -> %d\n", state, ch, next_state);
         curr++;
         state = next_state;
         
     } // end of while
-
-    printf("-------------------\n");
 
     return tknzr;
 }

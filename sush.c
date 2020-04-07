@@ -23,51 +23,53 @@ void execInternal(int command_num, command_t *cmd);
 
 int main (int argc, char **argv[])
 {
-    // User prompt when starting the shell, stored in PS1
-    const char *prompt = "Welcome to the Shippensburg University Shell (SUSH)! Please enter a command\n";
-    setenv("PS1", prompt, 0);
-    printf("%s", getenv("PS1"));
+    while(1){
+        // User prompt when starting the shell, stored in PS1
+        const char *prompt = "> Welcome to the Shippensburg University Shell (SUSH)! Please enter a command\n";
+        printf(">");
+        setenv("PS1", prompt, 0);
+        printf("%s", getenv("PS1"));
 
 
-    char command[COMMAND_SIZE];
+        char command[COMMAND_SIZE];
 
-    // gets the command that the user enters
-    fgets(command, COMMAND_SIZE, stdin);
-    
-    // instance of tokenizer_t struct
-    tokenizer_t tkn;
-    memset(&tkn, 0, sizeof(tkn));
+        // gets the command that the user enters
+        fgets(command, COMMAND_SIZE, stdin);
+        
+        // instance of tokenizer_t struct
+        tokenizer_t tkn;
+        memset(&tkn, 0, sizeof(tkn));
 
-    // tokenize the string
-    tkn = tokenize(command); 
+        // tokenize the string
+        tkn = tokenize(command); 
 
-    // instance of command_t struct
-    command_t cmd;
-    memset(&cmd, 0, sizeof(cmd));
-    
-    // The 'command' portion of the entered string is assumed to be the first part the user enters
-    cmd.cmd = strdup(tkn.tokens[0]);
-    
-    // Defines the number of arguments for our command
-    cmd.argc = tkn.num_tokens - 1;
-    
-    // Place the arguments into their array
-    int i = 1;
-    while(tkn.tokens[i] != NULL)
-    {
-        cmd.args[i-1] = strdup(tkn.tokens[i]);
-        i++;
-    }
+        // instance of command_t struct
+        command_t cmd;
+        memset(&cmd, 0, sizeof(cmd));
+        
+        // The 'command' portion of the entered string is assumed to be the first part the user enters
+        cmd.cmd = strdup(tkn.tokens[0]);
+        
+        // Defines the number of arguments for our command
+        cmd.argc = tkn.num_tokens - 1;
+        
+        // Place the arguments into their array
+        int i = 1;
+        while(tkn.tokens[i] != NULL)
+        {
+            cmd.args[i-1] = strdup(tkn.tokens[i]);
+            i++;
+        }
 
-    // Checks to see if the command the user entered is an internal command
-    command_t *cmd_ptr = &cmd;
-    if(checkInternalCommand(cmd_ptr)){
-        //should run the code from the if()
-    }
-    else {
-        parseAndRun(cmd.cmd, cmd.args, cmd.argc);
-    }
-    
+        // Checks to see if the command the user entered is an internal command
+        command_t *cmd_ptr = &cmd;
+        if(checkInternalCommand(cmd_ptr)){
+            //should run the code from the if()
+        }
+        else {
+            parseAndRun(cmd.cmd, cmd.args, cmd.argc);
+        }
+    }    
 }
 
 // Checks to see if the command is internal
