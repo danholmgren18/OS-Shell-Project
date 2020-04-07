@@ -47,26 +47,25 @@ int main (int argc, char **argv[])
     }
 
     // instance of command_t struct
-    // command_t cmd;
-
+    command_t cmd;
+    memset(&cmd, 0, sizeof(cmd));
     
     // The 'command' portion of the entered string is assumed to be the first part the user enters
-    // cmd.cmd = strdup(tkn.tokens[0]);
+    cmd.cmd = strdup(tkn.tokens[0]);
 
     // Checks to see if the command the user entered is an internal command
-    // checkInternalCommand(cmd.cmd);
+    checkInternalCommand(cmd.cmd);
 
     // Defines the number of arguments for our command
-    // cmd.argc = tkn.num_tokens-1;
+    cmd.argc = tkn.num_tokens-1;
     
     // Place the arguments into their array
-    // for(int i = 1; i < tkn.num_tokens; i++)
-    // {
-        // printf("tkn.tokens[%d] = %s\n", i, tkn.tokens[i]);
-        // cmd.args[i-1] = strdup(tkn.tokens[i]);
-        // printf("cmd.args[%d] = %s\n", i, cmd.args[i]);
-    // }
-
+    for(int i = 0; i < tkn.num_tokens; i++)
+    {
+        printf("tkn.tokens[%d] = %s\n", i, tkn.tokens[i]);
+        cmd.args[i-1] = strdup(tkn.tokens[i]);
+        printf("cmd.args[%d] = %s\n", i, cmd.args[i]);
+    }
 }
 
 // Checks to see if the command is internal
