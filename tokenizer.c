@@ -42,33 +42,33 @@ typedef struct _Token2
 Token tokenize(char *input_str)
 {
     printf("In the tokenize command\n");
-    
-    tokenizer_t t_token;
-    t_token.num_tokens = 0;
 
-    char* temp = strtok(input_str, " ");
-    
-    t_token.tokens[t_token.num_tokens] = strdup(temp);
-    t_token.num_tokens++;
-    
-    
-    while (temp != NULL)
+    tokenizer_t tknzr;
+    int count = 0;
+
+    printf("first strtok\n");
+    char* tok = strtok(input_str, " ");    
+   
+    while(tok != NULL)
     {
-        printf("here\n");
+        printf("in loop > ");
+        printf("tok - %s\n", tok);
         
-        temp = strtok(NULL, " ");
-        
-        t_token.tokens[t_token.num_tokens] = strdup(temp);
-        
-        t_token.num_tokens++;
+        tknzr.tokens[count] = strdup(tok);
+        count++;
+
+        tok = strtok(NULL, " ");
     }
 
-    printf("Num Tokens = %d\n", t_token.num_tokens);
-    for(int i = 0; i < t_token.num_tokens; i++)
+    tknzr.num_tokens = count;
+
+    printf("Num Tokens = %d\n", tknzr.num_tokens);
+    for(int i = 0; i < tknzr.num_tokens; i++)
     {
-        printf("Token %d = %s\n", i, t_token.tokens[i]);
+        printf("Token %d = %s\n", i, tknzr.tokens[i]);
     }
 
+/***********************************************************/
 
     char str[INPUT_SIZE];
     strcpy(str, input_str);
