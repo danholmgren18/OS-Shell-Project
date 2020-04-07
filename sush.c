@@ -2,76 +2,84 @@
  * Runner Class for the Shell Project 
  * @author: Zachary Semanco, Daniel Holmgren
  */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "tokenizer.h"      //Header file allowing us to use the tokenizer file and functions
 
-#include "tokenizer.h"
-
+// The max amount of characters to be read
 #define COMMAND_SIZE 60
 
-int command_list_size = 6;
-char *command_list[] = {"cd", "setenv", "unsetenv", "pwd", "exit", "accnt"};
+// The list of internal commands and its size
+int command_list_size = 7;
+char *command_list[] = {"cd", "setenv", "unsetenv", "pwd", "exit", "accnt", "\0"};
 
-
+// Funciton definitions for functions later in the file
 void checkInternalCommand(char *cmd);
 void execInternal(int command_num);
 
 
 int main (int argc, char **argv[])
 {
-  const char *prompt = "Welcome to the Shippensburg University Shell (SUSH)! Please enter a command\n";
+    // User prompt when starting the shell, stored in PS1
+    const char *prompt = "Welcome to the Shippensburg University Shell (SUSH)! Please enter a command\n";
+    setenv("PS1", prompt, 0);
+    printf("%s", getenv("PS1"));
 
-  setenv("PS1", prompt, 0);
 
-  printf("%s", getenv("PS1"));
+    char command[COMMAND_SIZE];
 
+    // gets the command that the user enters
+    fgets(command, COMMAND_SIZE, stdin);
+    
+    // instance of tokenizer_t struct
+    tokenizer_t tkn;
 
-  char command[COMMAND_SIZE];
+    // tokenize the string
+    tkn = tokenize(command); 
 
-  fgets(command, COMMAND_SIZE, stdin);
-  
-  
-  printf("\n\n");
-  
-  tokenizer_t tkn;
+    // instance of command_t struct
+    // command_t cmd;
 
-  tkn = tokenize(command); 
+    
+    // The 'command' portion of the entered string is assumed to be the first part the user enters
+    // cmd.cmd = strdup(tkn.tokens[0]);
 
-  command_t cmd;
+    // Checks to see if the command the user entered is an internal command
+    // checkInternalCommand(cmd.cmd);
 
-  cmd.cmd = tkn.tokens[0];
+    // Defines the number of arguments for our command
+    // cmd.argc = tkn.num_tokens-1;
+    
+    // Place the arguments into their array
+    // for(int i = 1; i < tkn.num_tokens; i++)
+    // {
+        // printf("tkn.tokens[%d] = %s\n", i, tkn.tokens[i]);
+        // cmd.args[i-1] = strdup(tkn.tokens[i]);
+        // printf("cmd.args[%d] = %s\n", i, cmd.args[i]);
+    // }
 
-  checkInternalCommand(cmd.cmd);
-
-  cmd.argc = tkn.num_tokens-1;
-
-  for(int i = 1; i < tkn.num_tokens; i++)
-  {
-     cmd.args[i-1] = tkn.tokens[i];
-  }
-
-  // parseArgs(cmd.arg);
-
-  // printf("\nIn Main, token.command_name: %s\n", tokens.command_name);
-  // printf("In Main, token.argument: %s\n", tokens.argument);
-  // printf("In Main, token.in_quotes: %s\n", tokens.in_quotes);
-  // printf("In Main, token.file_name: %s\n", tokens.file_name);
-  // printf("In Main, token.redirect: "); printf(tokens.redirect ? "true\n" : "false\n");
 }
 
-
+// Checks to see if the command is internal
+// If so, execute it
 void checkInternalCommand(char *cmd)
 {
+    // printf("cmd = %s\n", cmd);
+
     for(int i = 0; i < command_list_size - 1; i++)
     {
-        if(strcmp(command_list[i], cmd) == 0)
+        // printf("Trying to compare %s and %s\n", command_list[i], cmd);
+        if (strcmp(command_list[i], cmd) == 0)
         {
-           execInternal(i);
+            execInternal(i);
         }
     }
 }
 
+// Finds the proper internal command to execute
 void execInternal(int command_num)
-{
-  
+{  
     printf("command_num = %d\n", command_num);
     switch(command_num) 
     {
@@ -97,18 +105,3 @@ void execInternal(int command_num)
             printf("Not an internal command\n");
     }
 }
-
-// void parseArgs (int argc, char *args[])
-// {
-//     int state = 0;
-
-//     for(int i = 0; i < argc; i++)
-//     {
-//         switch(state)
-//         {
-//             case 0:
-
-//         }
-//     }
-
-// }
