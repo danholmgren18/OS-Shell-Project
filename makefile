@@ -1,4 +1,4 @@
-OBJS=sush.o tokenizer.o
+OBJS=sush.o tokenizer.o command.o
 CFLAGS=-ggdb
 
 all: sush
