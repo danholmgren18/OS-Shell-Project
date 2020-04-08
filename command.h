@@ -13,9 +13,11 @@ typedef struct _Command
     char *out_name;
     int append;
     int argc;
+    int contains_redirect;
+    int redirect_pos;
     char *args[];
 } command_t;
 
 void parseAndRun(command_t *cmd_ptr);
-void run_command(const char* cmd, const char* args[]);
+void run_command(const char* cmd, const char* args[], int redirect);
 #endif

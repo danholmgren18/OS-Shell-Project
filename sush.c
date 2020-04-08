@@ -25,11 +25,11 @@ int main (int argc, char **argv[])
 {
     while(1){
         // User prompt when starting the shell, stored in PS1
-        const char *prompt = "> Welcome to the Shippensburg University Shell (SUSH)! Please enter a command\n";
+        const char *prompt = "~ Welcome to the Shippensburg University Shell (SUSH)! Please enter a command\n";
 
         setenv("PS1", prompt, 0);
         printf("%s", getenv("PS1"));
-        printf("> ");
+        printf("~ ");
 
 
         char command[COMMAND_SIZE];
@@ -53,6 +53,22 @@ int main (int argc, char **argv[])
         
         // Defines the number of arguments for our command
         cmd.argc = tkn.num_tokens - 1;
+
+        // Finds the position of the redirect
+        if(tkn.redirect_found != 0) 
+        {
+            int j = 0;
+            while(tkn.tokens[j] != NULL)
+            {
+                //get the position of the redirect
+                if(!strcmp(tkn.tokens[j], ">") || !strcmp(tkn.tokens[j], "<") || !strcmp(tkn.tokens[j], "|"))
+                {
+                    cmd.contains_redirect = 1;
+                    cmd.redirect_pos = j + 1; //the file to redirect to should be the next position
+                }
+                j++;
+            }
+        }
         
         // Place the arguments into their array
         int i = 1;
@@ -95,37 +111,37 @@ void execInternal(int command_num, command_t *cmd)
     {
         case 0:
             //cd
-            printf("User entered %s\n", command_list[command_num]);
+            printf("~ User entered %s\n", command_list[command_num]);
             if(chdir(cmd->args[0]) == 0){
-                printf("Changed directory to: %s\n", getenv("PWD"));
-            }else printf("Error: Failed to change directory\n");
+                printf("~ Changed directory to: %s\n", getenv("PWD"));
+            }else printf("~ Error: Failed to change directory\n");
             break;
         case 1:
             //setenv
             if((setenv(cmd->args[0], cmd->args[1], 1)) == 0){
-                printf("Set env var %s to %s\n", cmd->args[0], cmd->args[1]);
-            } else printf("Error: Failed to change env var\n");
+                printf("~ Set env var %s to %s\n", cmd->args[0], cmd->args[1]);
+            } else printf("~ Error: Failed to change env var\n");
             break;
         case 2:
             //unsetenv
             if((unsetenv(cmd->args[0])) == 0){
-                printf("Unset env var %s\n", cmd->args[0]);
-            } else printf("Failed to unset env var\n");
+                printf("~ Unset env var %s\n", cmd->args[0]);
+            } else printf("~ Failed to unset env var\n");
             break;
         case 3:
             //pwd
-            printf("Current working directory: %s\n", getenv("PWD"));
+            printf("~ Current working directory: %s\n", getenv("PWD"));
             break;
         case 4:
             //exit
-            printf("Thanks for using the SUSH, goodbye\n");
+            printf("~ Thanks for using the SUSH, goodbye\n");
             exit(0);
             break;
         case 5:
             //accnt
-            printf("User entered %s\n", command_list[command_num]);
+            printf("~ User entered %s\n", command_list[command_num]);
             break;
         default: 
-            printf("Not an internal command\n");
+            printf("~ Not an internal command\n");
     }
 }
