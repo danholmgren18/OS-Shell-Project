@@ -82,7 +82,6 @@ int main (int argc, char **argv[])
                     cmd.out_name = strdup(tkn.tokens[j + 1]);
                     cmd.redirect_type = PIPE;
                 }
-                printf("redirect_type = %d\n", cmd.redirect_type);
                 j++;
             }
         }

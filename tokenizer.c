@@ -157,12 +157,5 @@ tokenizer_t tokenize(char *input_str)
 
     } // end of while
 
-    printf("*******************************************\n");
-    for(int i = 0; i < tknzr.num_tokens; i++)
-    {
-        printf("token %d = %s\n", i, tknzr.tokens[i]);
-    }
-    printf("*******************************************\n");
-
     return tknzr;
 }
