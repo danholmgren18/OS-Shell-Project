@@ -14,7 +14,9 @@ enum state {
     INITIAL,
     TOKEN,
     QUOTE,
-    COMMA_AFTER_QUOTE,
+    AFTER_QUOTE,
+    REDIRECT_FOUND,
+    AFTER_REDIRECT,
     END_TOKEN,
     ERROR, 
     DONE
@@ -31,12 +33,17 @@ int isnewline(char ch) {
     else return 0;
 }
 
+int isredirect(char ch) {
+    if ((ch == '>') || (ch == '<') || (ch == '|')) return 1;
+    else return 0;
+}
+
 tokenizer_t tokenize(char *input_str)
 {
     tokenizer_t tknzr;
     
     memset(&tknzr, 0, sizeof(tknzr));
-
+    tknzr.redirect_found = 0;
     int curr = 0;
     enum state state = INITIAL;  
     enum state next_state = INITIAL;
@@ -46,17 +53,19 @@ tokenizer_t tokenize(char *input_str)
 
         char ch = input_str[curr];
 
-        // if (ch == '\n') state=END_TOKEN;
-
         switch(state) {
             case INITIAL:
                 if (iswhitespace(ch)) next_state = INITIAL;
-                // empty field
+                
                 else if (ch == ' ') {
                     tknzr.tokens[tknzr.num_tokens] = "";
                     tknzr.num_tokens++;
                     next_state = INITIAL;
                 }
+                else if (isredirect(ch)){
+                    token_start = curr;
+                    next_state = REDIRECT_FOUND;
+                } 
                 else if (ch == '"') {
                     token_start = curr;
                     next_state = QUOTE;
@@ -77,6 +86,11 @@ tokenizer_t tokenize(char *input_str)
                     }
                     tknzr.tokens[tknzr.num_tokens] = strndup(input_str+token_start, (curr-token_start));
                     tknzr.num_tokens++;
+                } else if (isredirect(ch)) {
+                    next_state = REDIRECT_FOUND;
+                    tknzr.tokens[tknzr.num_tokens] = strndup(input_str+token_start, (curr-token_start));
+                    tknzr.num_tokens++;
+                    token_start = curr;
                 }
                 else {
                     next_state = TOKEN;
@@ -87,19 +101,45 @@ tokenizer_t tokenize(char *input_str)
                 if (ch == '"') {
                     tknzr.tokens[tknzr.num_tokens] = strndup(input_str+token_start+1, (curr-token_start-1));
                     tknzr.num_tokens++;
-                    next_state = COMMA_AFTER_QUOTE;
+                    next_state = AFTER_QUOTE;
                 } else if (isnewline(ch)) next_state = ERROR;
                 else {
                     next_state = QUOTE;
                 }
                 break;
 
-            case COMMA_AFTER_QUOTE:
-                if (ch == ' ') next_state = INITIAL;
-                else if (ch == '\n') next_state = DONE;
+            case AFTER_QUOTE:
+                if (iswhitespace(ch)) next_state = INITIAL;
+                else if (isnewline(ch)) next_state = DONE;
                 else next_state = ERROR;
                 break;
+
+            case REDIRECT_FOUND:
+                tknzr.redirect_found = 1;
+                if (iswhitespace(ch)) {
+                    tknzr.tokens[tknzr.num_tokens] = strndup(input_str+token_start, (curr-token_start));
+                    tknzr.num_tokens++;
+                    next_state = INITIAL;
+                    token_start = curr;
+                } else if (ch == '>') {
+                    next_state = REDIRECT_FOUND;
+                    tknzr.append;
+                }
+                else if (isnewline(ch)) next_state = ERROR;
+                else {
+                    token_start = curr;
+                    next_state = TOKEN;
+                }
+                break;
             
+            case AFTER_REDIRECT:
+                if (iswhitespace(ch)) next_state = AFTER_REDIRECT;
+                else if (isnewline(ch)) next_state = ERROR;
+                else {
+                    next_state = TOKEN;
+                    token_start = curr;
+                }
+
             case END_TOKEN:
                 tknzr.tokens[tknzr.num_tokens] = strndup(input_str+token_start, (curr-token_start));
                 tknzr.num_tokens++;
@@ -108,13 +148,13 @@ tokenizer_t tokenize(char *input_str)
  
             case ERROR:
                 next_state = DONE;
-                printf("Error in Tokenizer\n");
+                printf("~ Error in Tokenizer\n");
                 break;
         } // end switch
 
         curr++;
         state = next_state;
-        
+
     } // end of while
 
     return tknzr;
