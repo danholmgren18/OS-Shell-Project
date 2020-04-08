@@ -1,6 +1,6 @@
 /*
 * Class to play around with the Finite State Machine Functionality
-* @author: Zachary Semanco, DDaniel Holmgren
+* @author: Zachary Semanco, Daniel Holmgren
 */
 
 #include <stdlib.h>
