@@ -6,6 +6,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 #include "tokenizer.h"      //Header file allowing us to use the tokenizer file and functions
 #include "command.h"        //Header file for the command struct
 
@@ -15,14 +18,25 @@
 // The list of internal commands and its size
 int command_list_size = 6;
 char *command_list[] = {"cd", "setenv", "unsetenv", "pwd", "exit", "accnt"};
+struct rusage usage;
+struct rusage cusage;
+struct rusage tusage;
 
 // Funciton definitions for functions later in the file
 int checkInternalCommand(command_t *cmd);
 void execInternal(int command_num, command_t *cmd);
+void sigHandler(int signo);
+void processAccountSelf();
+void currentTotal();
+void grandTotal();
 
 
 int main (int argc, char **argv[])
-{
+{   
+    signal(SIGINT, sigHandler);
+    signal(SIGUSR1, sigHandler);
+    signal(SIGUSR2, sigHandler);
+
     while(1){
         // User prompt when starting the shell, stored in PS1
         const char *prompt = "~ Welcome to the Shippensburg University Shell (SUSH)! Please enter a command\n";
@@ -35,8 +49,12 @@ int main (int argc, char **argv[])
         char command[COMMAND_SIZE];
 
         // gets the command that the user enters
-        fgets(command, COMMAND_SIZE, stdin);
-        
+        char *line = fgets(command, COMMAND_SIZE, stdin);
+
+        if(line == NULL){
+            exit(0);
+        }
+
         // instance of tokenizer_t struct
         tokenizer_t tkn;
         memset(&tkn, 0, sizeof(tkn));
@@ -129,8 +147,8 @@ void execInternal(int command_num, command_t *cmd)
             //cd
             printf("~ User entered %s\n", command_list[command_num]);
             if(chdir(cmd->args[0]) == 0){
-                printf("~ Changed directory to: %s\n", getenv("PWD"));
-            }else printf("~ Error: Failed to change directory\n");
+                //changed directory
+            }else printf("Error: Failed to change directory\n");
             break;
         case 1:
             //setenv
@@ -150,14 +168,59 @@ void execInternal(int command_num, command_t *cmd)
             break;
         case 4:
             //exit
-            printf("~ Thanks for using the SUSH, goodbye\n");
+            //grandTotal();
+            currentTotal();
+            printf("Thanks for using the SUSH, goodbye.\n");
             exit(0);
             break;
         case 5:
             //accnt
-            printf("~ User entered %s\n", command_list[command_num]);
+            processAccountSelf();
             break;
         default: 
             printf("~ Not an internal command\n");
+    }
+}
+
+void processAccountSelf(){
+    if(getrusage(RUSAGE_SELF, &usage) == 0){
+            printf("User CPU time used: %ld.%06ld\n", usage.ru_utime.tv_sec, usage.ru_utime.tv_usec);
+            printf("System CPU time used: %ld.%06ld\n", usage.ru_stime.tv_sec, usage.ru_stime.tv_usec);
+            printf("Max resident set size: %ld\n", usage.ru_maxrss);
+            printf("Integral shared memory size: %ld\n", usage.ru_ixrss);
+            printf("Integral unshared data size: %ld\n", usage.ru_idrss);
+            printf("Integral unshared stack size: %ld\n", usage.ru_isrss);
+            printf("Page reclaims: %ld\n", usage.ru_minflt);
+            printf("Page faults: %ld\n", usage.ru_majflt);
+            printf("Number of swaps: %ld\n", usage.ru_nswap);
+            printf("Block input operations: %ld\n", usage.ru_inblock);
+            printf("Block output operations: %ld\n", usage.ru_oublock);
+            printf("IPC messages sent: %ld\n", usage.ru_msgsnd);
+            printf("IPC messages recieved: %ld\n", usage.ru_msgrcv);
+            printf("Signals recieved: %ld\n", usage.ru_nsignals);
+            printf("Voluntary context switches: %ld\n", usage.ru_nvcsw);
+            printf("Involuntary context switches: %ld\n", usage.ru_nivcsw);
+            } else printf("An Error Occured\n");
+}
+
+void currentTotal(){
+    //should display the current total system usage of processes running
+}
+
+void grandTotal(){
+    //should display totals of system usage from self, children, and threads
+}
+
+void sigHandler(int signo){
+    if(signo == SIGINT){
+        //user pressing ctrl + c
+        printf(" ");
+    } else if(signo == SIGUSR1){
+        //display current processes system resources
+        processAccountSelf();
+    } else if(signo == SIGUSR2){
+        //display the current running total and
+        //current process totals
+        currentTotal();
     }
 }
