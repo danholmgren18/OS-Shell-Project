@@ -10,6 +10,7 @@ typedef struct _Token
 {
     int num_tokens;
     int redirect_found;
+    int append;
     char *tokens[20];
 } tokenizer_t;
 

@@ -121,6 +121,9 @@ tokenizer_t tokenize(char *input_str)
                     tknzr.num_tokens++;
                     next_state = INITIAL;
                     token_start = curr;
+                } else if (ch == '>') {
+                    next_state = REDIRECT_FOUND;
+                    tknzr.append;
                 }
                 else if (isnewline(ch)) next_state = ERROR;
                 else {
@@ -153,6 +156,13 @@ tokenizer_t tokenize(char *input_str)
         state = next_state;
 
     } // end of while
+
+    printf("*******************************************\n");
+    for(int i = 0; i < tknzr.num_tokens; i++)
+    {
+        printf("token %d = %s\n", i, tknzr.tokens[i]);
+    }
+    printf("*******************************************\n");
 
     return tknzr;
 }

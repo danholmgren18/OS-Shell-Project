@@ -61,11 +61,28 @@ int main (int argc, char **argv[])
             while(tkn.tokens[j] != NULL)
             {
                 //get the position of the redirect
-                if(!strcmp(tkn.tokens[j], ">") || !strcmp(tkn.tokens[j], "<") || !strcmp(tkn.tokens[j], "|"))
-                {
+                if(!strcmp(tkn.tokens[j], ">")) {
                     cmd.contains_redirect = 1;
-                    cmd.redirect_pos = j + 1; //the file to redirect to should be the next position
+                    cmd.redirect_pos = j + 1; 
+                    cmd.out_name = strdup(tkn.tokens[j + 1]);
+                    cmd.redirect_type = OUT;
+                } else if (!strcmp(tkn.tokens[j], "<")) {
+                    cmd.contains_redirect = 1;
+                    cmd.redirect_pos = j + 1;
+                    cmd.in_name = strdup(tkn.tokens[j + 1]);
+                    cmd.redirect_type = IN;
+                } else if (!strcmp(tkn.tokens[j], ">>")) {
+                    cmd.contains_redirect = 1;
+                    cmd.redirect_pos = j + 1;
+                    cmd.out_name = strdup(tkn.tokens[j + 1]);
+                    cmd.redirect_type = APPEND;
+                } else if (!strcmp(tkn.tokens[j], "|")) {
+                    cmd.contains_redirect = 1;
+                    cmd.redirect_pos = j + 1;
+                    cmd.out_name = strdup(tkn.tokens[j + 1]);
+                    cmd.redirect_type = PIPE;
                 }
+                printf("redirect_type = %d\n", cmd.redirect_type);
                 j++;
             }
         }
