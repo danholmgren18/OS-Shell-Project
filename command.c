@@ -9,6 +9,8 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/wait.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 #include <fcntl.h>
 #include "command.h"
 
@@ -53,42 +55,46 @@ void run_command(const char* command, const char* arguments[], command_t *cmd_pt
 
     if(pid == 0)
     {
+        signal(SIGINT, SIG_DFL);
+
+
         if (cmd_ptr->contains_redirect != 0) 
         {
-            if (cmd_ptr->redirect_type == OUT) {
+            if (cmd_ptr->out_name != NULL) {
                 out = open(cmd_ptr->out_name, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
                 
                 dup2(out, 1); // make stdout go to file
 
-                close(out);
+                // close(out);
 
-                execvp(command, arguments);
-                perror("~ ERROR: Could not execute command with redirect!");
+                // execvp(command, arguments);
+                // perror("~ ERROR: Could not execute command with redirect!");
 
-            } else if (cmd_ptr->redirect_type == IN) {                
+            } 
+            if (cmd_ptr->in_name != NULL)
                 in = open(cmd_ptr->in_name, O_RDONLY);
                 
                 dup2(in, 0);
 
-                close(in);
+                // close(in);
 
-                execvp(command, arguments);
-                perror("~ ERROR: Could not execute command with redirect!");
-            } else if (cmd_ptr->redirect_type == APPEND) {
-                app = open(cmd_ptr->out_name, O_RDWR | O_APPEND | O_CREAT, S_IRUSR | S_IWUSR);
+                // execvp(command, arguments);
+                // perror("~ ERROR: Could not execute command with redirect!");
+            // } else if (cmd_ptr->redirect_type == APPEND) {
+            //     app = open(cmd_ptr->out_name, O_RDWR | O_APPEND | O_CREAT, S_IRUSR | S_IWUSR);
                 
-                dup2(app, 1);
+            //     dup2(app, 1);
 
-                close(app);
+            //     close(app);
 
-                execvp(command, arguments);
-                perror("~ ERROR: Could not execute command with redirect");
-            } else
-            {
-                execvp(command, arguments);
-                perror("~ ERROR: Could not execute command with redirect!");
-                exit(-1);
-            } 
+            //     execvp(command, arguments);
+            //     perror("~ ERROR: Could not execute command with redirect");
+            // } else
+            // {
+            execvp(command, arguments);
+            perror("~ ERROR: Could not execute command with redirect!");
+            exit(-1);
+             
         } else
         {
             execvp(command, arguments);
@@ -99,6 +105,8 @@ void run_command(const char* command, const char* arguments[], command_t *cmd_pt
     {
         int status;
         waitpid(pid, &status, 0);
+        struct rusage usage;
+        printRUSAGE(usage);
     }
     printf("~ ---done running command---\n");
 }

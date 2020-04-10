@@ -30,28 +30,9 @@ void processAccountSelf();
 void currentTotal();
 void grandTotal();
 
-
-int main (int argc, char **argv[])
-{   
-    signal(SIGINT, sigHandler);
-    signal(SIGUSR1, sigHandler);
-    signal(SIGUSR2, sigHandler);
-
-    while(1){
-        // User prompt when starting the shell, stored in PS1
-        const char *prompt = "~ Welcome to the Shippensburg University Shell (SUSH)! Please enter a command\n";
-
-        setenv("PS1", prompt, 0);
-        printf("%s", getenv("PS1"));
-        printf("~ ");
-
-
-        char command[COMMAND_SIZE];
-
-        // gets the command that the user enters
-        char *line = fgets(command, COMMAND_SIZE, stdin);
-
-        if(line == NULL){
+void handle_command(const char *line)
+{
+     if(line == NULL){
             exit(0);
         }
 
@@ -120,6 +101,34 @@ int main (int argc, char **argv[])
         else {
             parseAndRun(cmd_ptr);
         }  
+}
+int main (int argc, char **argv[])
+{   
+    signal(SIGINT, SIG_IGN);
+    signal(SIGUSR1, sigHandler);
+    signal(SIGUSR2, sigHandler);
+
+
+    FILE fp = *fopen(".sushrc","r");
+    while (fgets(command,1023,fp)) {
+        handle_command(command);
+    }
+
+    while(1){
+        // User prompt when starting the shell, stored in PS1
+        const char *prompt = "~ Welcome to the Shippensburg University Shell (SUSH)! Please enter a command\n";
+
+        setenv("PS1", prompt, 0);
+        printf("%s", getenv("PS1"));
+        printf("~ ");
+
+
+        char command[COMMAND_SIZE];
+
+        // gets the command that the user enters
+        char *line = fgets(command, COMMAND_SIZE, stdin);
+        handle_command(command);
+       
     }    
 }
 
@@ -164,7 +173,7 @@ void execInternal(int command_num, command_t *cmd)
             break;
         case 3:
             //pwd
-            printf("~ Current working directory: %s\n", getenv("PWD"));
+            printf("~ Current working directory: %s\n", get_current_dir_name());
             break;
         case 4:
             //exit
@@ -182,10 +191,10 @@ void execInternal(int command_num, command_t *cmd)
     }
 }
 
-void processAccountSelf(){
-    if(getrusage(RUSAGE_SELF, &usage) == 0){
-            printf("User CPU time used: %ld.%06ld\n", usage.ru_utime.tv_sec, usage.ru_utime.tv_usec);
-            printf("System CPU time used: %ld.%06ld\n", usage.ru_stime.tv_sec, usage.ru_stime.tv_usec);
+void printRUSAGE(struct rusage usage)
+{
+    printf("User CPU time used: %ld.%06ld\n", usage.ru_utime.tv_sec, usage.ru_utime.tv_usec);
+          printf("System CPU time used: %ld.%06ld\n", usage.ru_stime.tv_sec, usage.ru_stime.tv_usec);
             printf("Max resident set size: %ld\n", usage.ru_maxrss);
             printf("Integral shared memory size: %ld\n", usage.ru_ixrss);
             printf("Integral unshared data size: %ld\n", usage.ru_idrss);
@@ -200,7 +209,14 @@ void processAccountSelf(){
             printf("Signals recieved: %ld\n", usage.ru_nsignals);
             printf("Voluntary context switches: %ld\n", usage.ru_nvcsw);
             printf("Involuntary context switches: %ld\n", usage.ru_nivcsw);
-            } else printf("An Error Occured\n");
+}
+
+void processAccountSelf(){
+    struct rusage usage;
+    
+    if(getrusage(RUSAGE_SELF, &usage) == 0){
+            printRUSAGE(usage);
+    } else printf("An Error Occured\n");
 }
 
 void currentTotal(){
