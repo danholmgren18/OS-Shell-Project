@@ -41,10 +41,10 @@ void handle_command(const char *line)
         memset(&tkn, 0, sizeof(tkn));
 
         // tokenize the string
-        tkn = tokenize(command); 
+        tkn = tokenize(line); 
 
         // instance of command_t struct
-        command_t cmd;
+        command_t cmd; 
         memset(&cmd, 0, sizeof(cmd));
         
         // The 'command' portion of the entered string is assumed to be the first part the user enters
@@ -109,10 +109,10 @@ int main (int argc, char **argv[])
     signal(SIGUSR2, sigHandler);
 
 
-    FILE fp = *fopen(".sushrc","r");
-    while (fgets(command,1023,fp)) {
-        handle_command(command);
-    }
+    // FILE fp = *fopen(".sushrc","r");
+    // while (fgets(command,1023,fp)) {
+    //     handle_command(command);
+    // }
 
     while(1){
         // User prompt when starting the shell, stored in PS1
