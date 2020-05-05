@@ -173,7 +173,9 @@ void execInternal(int command_num, command_t *cmd)
             break;
         case 3:
             //pwd
-            printf("~ Current working directory: %s\n", get_current_dir_name());
+            printf("");
+            char buffer[FILENAME_MAX];
+            printf("~ Current working directory: %s\n", getcwd(buffer, sizeof(buffer)));
             break;
         case 4:
             //exit
