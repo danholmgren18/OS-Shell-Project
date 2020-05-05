@@ -29,6 +29,7 @@ void sigHandler(int signo);
 void processAccountSelf();
 void currentTotal();
 void grandTotal();
+void printRUSAGE(struct rusage usage);
 
 void handle_command(const char *line)
 {
@@ -186,11 +187,12 @@ void execInternal(int command_num, command_t *cmd)
             break;
         case 5:
             //accnt
-            processAccountSelf();
+            //processAccountSelf();
             break;
         default: 
             printf("~ Not an internal command\n");
     }
+    processAccountSelf();
 }
 
 void printRUSAGE(struct rusage usage)
